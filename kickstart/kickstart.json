@@ -11,7 +11,10 @@
     "adminUserId": "00000000-0000-0000-0000-000000000001",
     "userEmail": "richard@example.com",
     "userPassword": "password",
-    "userUserId": "00000000-0000-0000-0000-111111111111"
+    "userUserId": "00000000-0000-0000-0000-111111111111",
+    "tellerEmail": "teller@example.com",
+    "tellerPassword": "password",
+    "tellerUserId": "00000000-0000-0000-0000-222222222222"
   },
   "apiKeys": [
     {
@@ -93,8 +96,8 @@
         "user": {
           "birthDate": "1985-11-23",
           "email": "#{userEmail}",
-          "firstName": "Fred",
-          "lastName": "Flintstone",
+          "firstName": "Richard",
+          "lastName": "Example",
           "password": "#{userPassword}"
         },
         "registration": {
@@ -107,11 +110,30 @@
     },
     {
       "method": "POST",
+      "url": "/api/user/registration/#{tellerUserId}",
+      "body": {
+        "user": {
+          "birthDate": "1987-10-01",
+          "email": "#{tellerEmail}",
+          "firstName": "Teller",
+          "lastName": "Example",
+          "password": "#{tellerPassword}"
+        },
+        "registration": {
+          "applicationId": "#{applicationId}",
+          "data": {
+            "favoriteColor": "red"
+          }
+        }
+      }
+    },
+    {
+      "method": "POST",
       "url": "/api/theme/#{newThemeId}",
       "body": {
         "sourceThemeId": "75a068fd-e94b-451a-9aeb-3ddb9a3b5987",
         "theme": {
-          "name": "React theme"
+          "name": "Changebank theme"
         }
       }
     },
