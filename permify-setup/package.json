@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Script to set up permify correctly.",
   "scripts": {
-    "setup": "ts-node src/index.ts"
+    "schema": "ts-node src/schema.ts",
+    "loaddata": "ts-node src/loaddata.ts"
   },
   "author": "Dan Moore",
   "license": "Apache-2.0",
