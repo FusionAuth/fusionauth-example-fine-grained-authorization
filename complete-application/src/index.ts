@@ -7,6 +7,17 @@ import { GetPublicKeyOrSecret, verify } from 'jsonwebtoken';
 import jwksClient, { RsaSigningKey } from 'jwks-rsa';
 import * as path from 'path';
 
+import * as permify from "@permify/permify-node";
+
+const permifyclient = permify.grpc.newClient({
+  endpoint: "localhost:3478", // Replace with your Permify server URL
+  cert: null, // Optional: SSL certificate
+  insecure: true, // Set to false in production
+  pk: null,
+  certChain: null,
+});
+
+
 // Add environment variables
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -30,18 +41,66 @@ const clientId = process.env.clientId;
 const clientSecret = process.env.clientSecret;
 const fusionAuthURL = process.env.fusionAuthURL;
 
-// Validate the token signature, make sure it wasn't expired
-const validateUser = async (userTokenCookie: { access_token: string }) => {
+// Validate the token signature, make sure it wasn't expired, check for permissions
+const validateUser = async (userTokenCookie: { access_token: string }, permission: string) => {
   // Make sure the user is authenticated.
   if (!userTokenCookie || !userTokenCookie?.access_token) {
     return false;
   }
+
+  if (permission == "home") {
+    // always treat this as a logged out user
+    return false;
+  }
+
   try {
-    let decodedFromJwt;
-    await verify(userTokenCookie.access_token, await getKey, undefined, (err, decoded) => {
-      decodedFromJwt = decoded;
+
+    const key = await getKey; // Await the key first
+    const decodedFromJwt = await new Promise<any>((resolve, reject) => {
+      verify(userTokenCookie.access_token, key, undefined, (err, decoded) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(decoded);
+        }
+      });
     });
-    return decodedFromJwt;
+    // console.log(decodedFromJwt);
+
+    const now = new Date();
+    const mtTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Denver"}));
+    //const hour = mtTime.getHours();
+    const hour = 1;
+
+    let response = await permifyclient.permission.check({
+      tenantId: "t1",
+      metadata: {
+        schemaVersion: "",
+        depth: 20,
+      },
+      entity: {
+        type: "bank",
+        id: "1",
+      },
+      permission: permission,
+      subject: {
+        type: "user",
+        id: decodedFromJwt?.sub
+      },
+      context: {
+        data: {
+            "current_hour": hour
+        }
+      }
+    });
+    
+    console.log(permission);
+    // console.log(response);
+
+    let checkresult = response.can === permify.grpc.base.CheckResult.CHECK_RESULT_ALLOWED;
+    console.log(checkresult ? "RESULT_ALLOWED" : "RESULT_DENIED");
+
+    return checkresult;
   } catch (err) {
     console.error(err);
     return false;
@@ -79,7 +138,7 @@ app.use('/static', express.static(path.join(__dirname, '../static/')));
 //tag::homepage[]
 app.get("/", async (req, res) => {
   const userTokenCookie = req.cookies[userToken];
-  if (await validateUser(userTokenCookie)) {
+  if (await validateUser(userTokenCookie,"home")) {
     res.redirect(302, '/account');
   } else {
     const stateValue = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -155,7 +214,7 @@ app.get('/oauth-redirect', async (req, res, next) => {
 //tag::account[]
 app.get("/account", async (req, res) => {
   const userTokenCookie = req.cookies[userToken];
-  if (!await validateUser(userTokenCookie)) {
+  if (!await validateUser(userTokenCookie,"account")) {
     res.redirect(302, '/');
   } else {
     res.sendFile(path.join(__dirname, '../templates/account.html'));
@@ -166,7 +225,7 @@ app.get("/account", async (req, res) => {
 //tag::make-change[]
 app.get("/make-change", async (req, res) => {
   const userTokenCookie = req.cookies[userToken];
-  if (!await validateUser(userTokenCookie)) {
+  if (!await validateUser(userTokenCookie,"makechange")) {
     res.redirect(302, '/');
   } else {
     res.sendFile(path.join(__dirname, '../templates/make-change.html'));
@@ -175,7 +234,7 @@ app.get("/make-change", async (req, res) => {
 
 app.post("/make-change", async (req, res) => {
   const userTokenCookie = req.cookies[userToken];
-  if (!await validateUser(userTokenCookie)) {
+  if (!await validateUser(userTokenCookie,"makechange")) {
     res.status(403).json(JSON.stringify({
       error: 'Unauthorized'
     }))
