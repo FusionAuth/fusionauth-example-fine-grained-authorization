@@ -224,7 +224,7 @@ app.get('/oauth-redirect', async (req, res, next) => {
 app.get("/account", async (req, res) => {
   const userTokenCookie = req.cookies[userToken];
   if (!await validateUser(userTokenCookie,"account")) {
-    res.redirect(302, '/');
+    res.redirect(302, '/error');
   } else {
     res.sendFile(path.join(__dirname, '../templates/account.html'));
   }
@@ -236,6 +236,17 @@ app.get("/error", async (req, res) => {
   res.sendFile(path.join(__dirname, '../templates/error.html'));
 });
 //end::error[]
+
+//tag::admin[]
+app.get("/admin", async (req, res) => {
+  const userTokenCookie = req.cookies[userToken];
+  if (!await validateUser(userTokenCookie,"admin")) {
+    res.redirect(302, '/error');
+  } else {
+    res.sendFile(path.join(__dirname, '../templates/admin.html'));
+  }
+});
+//end::admin[]
 
 //tag::make-change[]
 app.get("/make-change", async (req, res) => {
