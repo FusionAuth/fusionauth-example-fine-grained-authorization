@@ -9,14 +9,6 @@ import * as path from 'path';
 
 import * as permify from "@permify/permify-node";
 
-const permifyclient = permify.grpc.newClient({
-  endpoint: "localhost:3478", // Replace with your Permify server URL
-  cert: null, // Optional: SSL certificate
-  insecure: true, // Set to false in production
-  pk: null,
-  certChain: null,
-});
-
 
 // Add environment variables
 import * as dotenv from "dotenv";
@@ -34,12 +26,27 @@ if (!process.env.clientSecret) {
   process.exit();
 }
 if (!process.env.fusionAuthURL) {
-  console.error('Missing clientSecret from .env');
+  console.error('Missing fusionAuthURL from .env');
+  process.exit();
+}
+if (!process.env.PRESHARED_KEY) {
+  console.error('Missing preshared key from .env');
   process.exit();
 }
 const clientId = process.env.clientId;
 const clientSecret = process.env.clientSecret;
 const fusionAuthURL = process.env.fusionAuthURL;
+
+const permifyclient = permify.grpc.newClient({
+  endpoint: "localhost:3478", // Replace with your Permify server URL
+  cert: null, // Optional: SSL certificate
+  insecure: true, // Set to false in production
+  pk: null,
+  certChain: null,
+},
+  permify.grpc.newAccessTokenInterceptor(process.env.PRESHARED_KEY)
+);
+
 
 // Validate the token signature, make sure it wasn't expired, check for permissions
 const validateUser = async (userTokenCookie: { access_token: string }, permission: string) => {
@@ -69,8 +76,10 @@ const validateUser = async (userTokenCookie: { access_token: string }, permissio
 
     const now = new Date();
     const mtTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Denver"}));
-    //const hour = mtTime.getHours();
-    const hour = 1;
+    const hour = mtTime.getHours();
+
+    // use for testing specific hours. between 7 and 17 should work. These are in permify-setup/src/loaddata.ts and the openValue and closeValue values
+    //const hour = 1;
 
     let response = await permifyclient.permission.check({
       tenantId: "t1",
@@ -222,11 +231,17 @@ app.get("/account", async (req, res) => {
 });
 //end::account[]
 
+//tag::error[]
+app.get("/error", async (req, res) => {
+  res.sendFile(path.join(__dirname, '../templates/error.html'));
+});
+//end::error[]
+
 //tag::make-change[]
 app.get("/make-change", async (req, res) => {
   const userTokenCookie = req.cookies[userToken];
   if (!await validateUser(userTokenCookie,"makechange")) {
-    res.redirect(302, '/');
+    res.redirect(302, '/error');
   } else {
     res.sendFile(path.join(__dirname, '../templates/make-change.html'));
   }
