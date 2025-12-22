@@ -40,6 +40,26 @@ FusionAuth will be initially configured with these settings:
 
 You can log into the [FusionAuth admin UI](http://localhost:9011/admin) and look around if you want, but with Docker/Kickstart you don't need to.
 
+## Setting Up Permissions
+
+
+```shell
+cd permify-setup
+```
+
+Install dependencies
+
+```shell
+npm install
+```
+
+Configure the local permify server
+
+```shell
+npm run schema && npm run loaddata
+```
+
+
 ## Running the Example App
 To run the application, first go into the project directory
 
