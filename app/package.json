@@ -19,7 +19,6 @@
     "pkce-challenge": "^3.1.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.42.1",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.17",
     "@types/jsonwebtoken": "^9.0.3",
