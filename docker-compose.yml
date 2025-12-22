@@ -74,6 +74,18 @@ services:
       - fusionauth_config:/usr/local/fusionauth/config
       - ./kickstart:/usr/local/fusionauth/kickstart
 
+  permify:
+    image: ghcr.io/permify/permify
+    command: serve
+    environment:
+      PERMIFY_LOG_LEVEL: warn
+      PERMIFY_AUTHN_ENABLED: true
+      PERMIFY_AUTHN_METHOD: preshared
+      PERMIFY_AUTHN_PRESHARED_KEYS: "sample_api_key_please_change"
+    ports:
+      - "3476:3476"
+      - "3478:3478"
+
 networks:
   db_net:
     driver: bridge
