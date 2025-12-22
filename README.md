@@ -42,6 +42,12 @@ You can log into the [FusionAuth admin UI](http://localhost:9011/admin) and look
 
 ## Setting Up Permissions
 
+These permissions are checked for every request and defined in `permify-setup/authmodel.txt`.
+
+* The account page can be displayed to anyone who is a teller, vp or member.
+* The makechange page can be displayed to anyone who is a teller while the bank is open (by default between 7am and 5pm local time).
+* The admin page is available to anyone who is a teller or vp.
+
 
 ```shell
 cd permify-setup
