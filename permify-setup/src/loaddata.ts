@@ -1,5 +1,7 @@
 import * as permify from "@permify/permify-node";
 import * as dotenv from "dotenv";
+import { IntegerValue, BooleanValue } from '@permify/permify-node/dist/src/grpc/generated/base/v1/base';
+import { Any } from '@permify/permify-node/dist/src/grpc/generated/google/protobuf/any';
 
 // Load environment variables
 dotenv.config();
@@ -16,7 +18,7 @@ if (!process.env.PERMIFY_ENDPOINT) {
 
 // Initialize Permify client
 const permifyclient = permify.grpc.newClient({
-  endpoint: process.env.PERMIFY_ENDPOINT || "localhost:3476",
+  endpoint: process.env.PERMIFY_ENDPOINT || "localhost:3478",
   cert: null,
   insecure: process.env.NODE_ENV !== "production",
   pk: null,
@@ -92,11 +94,20 @@ async function writeRelationshipTuples() {
 async function writeAttributes() {
   try {
     console.log('\nWriting attributes...');
+
+    const openValue = Any.fromJSON({
+        typeUrl: 'type.googleapis.com/base.v1.IntegerValue',
+        value: IntegerValue.encode(IntegerValue.fromJSON({ data: 7 })).finish()
+    });
+    
+    const closeValue = Any.fromJSON({
+        typeUrl: 'type.googleapis.com/base.v1.IntegerValue',
+        value: IntegerValue.encode(IntegerValue.fromJSON({ data: 17 })).finish()
+    });
     
     const response = await permifyclient.data.write({
       tenantId: process.env.TENANT_ID || "t1",
       metadata: {
-        schemaVersion: "", // Optional: specify schema version
       },
       attributes: [
         {
@@ -105,10 +116,7 @@ async function writeAttributes() {
             id: "1"
           },
           attribute: "open_hour",
-          value: {
-            "@type": "type.googleapis.com/base.v1.IntegerValue",
-            data: 7
-          }
+          value: openValue
         },
         {
           entity: {
@@ -116,10 +124,7 @@ async function writeAttributes() {
             id: "1"
           },
           attribute: "close_hour",
-          value: {
-            "@type": "type.googleapis.com/base.v1.IntegerValue",
-            data: 17
-          }
+          value: closeValue
         }
       ]
     });
@@ -130,7 +135,7 @@ async function writeAttributes() {
   } catch (error) {
     console.error('Error writing attributes:', error.message);
     if (error.details) {
-      console.error('Details:', error.details);
+      console.error('Details:', error);
     }
     throw error;
   }
