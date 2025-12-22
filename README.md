@@ -13,11 +13,11 @@ This application was built by following the [Express.js Quickstart](https://fusi
 
 The `docker-compose.yml` file and the `kickstart` directory are used to start and configure local FusionAuth and Permify servers.
 
-The `/complete-application` directory contains a fully working version of the application.
+The `/app-application` directory the fully working version of the application.
 
 ## Project Dependencies
 * Docker, for running FusionAuth
-* Node 16 or later, for running the Changebank Express.js application
+* Node 22 or later, for running the Changebank Express.js application
 
 ## Installation via Docker
 
