@@ -13,7 +13,7 @@ This application was built by following the [Express.js Quickstart](https://fusi
 
 The `docker-compose.yml` file and the `kickstart` directory are used to start and configure local FusionAuth and Permify servers.
 
-The `/app-application` directory the fully working version of the application.
+The `/app` directory the fully working version of the application.
 
 ## Project Dependencies
 * Docker, for running FusionAuth
@@ -70,7 +70,7 @@ npm run schema && npm run loaddata
 To run the application, first go into the project directory
 
 ```shell
-cd complete-application
+cd app
 ```
 
 Install dependencies
