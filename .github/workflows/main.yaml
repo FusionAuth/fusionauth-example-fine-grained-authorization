@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 18
       # Set up the build environment
-      - run: npm ci --prefix "./complete-application/"
+      - run: npm ci --prefix "./app/"
 
       # Build
       - name: Copy our kickstart file over so it gets picked up
@@ -33,13 +33,5 @@ jobs:
           npm install
           npx playwright install-deps
           npx playwright install
-        working-directory: ./complete-application
+        working-directory: ./app
 
-# only for debugging playwright errors
-#      - uses: actions/upload-artifact@v4
-#        if: always()
-#        with:
-#          name: playwright-screenshot
-#          path: complete-application/screenshot.png
-#          retention-days: 2
-      # Done!
