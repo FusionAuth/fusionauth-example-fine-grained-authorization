@@ -7,8 +7,6 @@ get them access and refresh tokens.
 This application uses the integrated Permify fine-grained authorization server to determine 
 if certain actions are allowed. If an action is not allowed, the user is redirected to an error page.
 
-This application was built by following the [Express.js Quickstart](https://fusionauth.io/docs/quickstarts/quickstart-javascript-express-web/).
-
 ## Project Contents
 
 The `docker-compose.yml` file and the `kickstart` directory are used to start and configure local FusionAuth and Permify servers.
@@ -16,7 +14,7 @@ The `docker-compose.yml` file and the `kickstart` directory are used to start an
 The `/app` directory the fully working version of the application.
 
 ## Project Dependencies
-* Docker, for running FusionAuth
+* Docker or a Docker compatible system, for running FusionAuth and Permify
 * Node 22 or later, for running the Changebank Express.js application
 
 ## Installation via Docker
@@ -85,3 +83,12 @@ Start the application
 npm run dev
 ```
 
+## Check Access
+
+Visit http://localhost:8080/ and log in with one of the users above.
+
+Pages to check:
+
+- http://localhost:8080/admin as an admin user and a normal user
+- http://localhost:8080/account as any logged in user
+- http://localhost:8080/make-change as a teller . Change `hour` to be `2` in app/src/index.ts in the `validateUser` function to test the ABAC permission check.
