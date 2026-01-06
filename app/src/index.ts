@@ -74,12 +74,13 @@ const validateUser = async (userTokenCookie: { access_token: string }, permissio
     });
     // console.log(decodedFromJwt);
 
+    // use for testing specific hours. between 7 and 17 should work. These are in permify-setup/src/loaddata.ts and are the openValue and closeValue values. Uncomment below and then comment out the mtTime.getHours() line below
+    //const hour = 1;
+
+    // tag::checkingPermission
     const now = new Date();
     const mtTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Denver"}));
     const hour = mtTime.getHours();
-
-    // use for testing specific hours. between 7 and 17 should work. These are in permify-setup/src/loaddata.ts and the openValue and closeValue values
-    //const hour = 1;
 
     let response = await permifyclient.permission.check({
       tenantId: "t1",
@@ -103,12 +104,10 @@ const validateUser = async (userTokenCookie: { access_token: string }, permissio
       }
     });
     
-    console.log(permission);
-    // console.log(response);
-
     let checkresult = response.can === permify.grpc.base.CheckResult.CHECK_RESULT_ALLOWED;
-    console.log(checkresult ? "RESULT_ALLOWED" : "RESULT_DENIED");
+    // end::checkingPermission
 
+    console.log(checkresult ? "RESULT_ALLOWED" : "RESULT_DENIED");
     return checkresult;
   } catch (err) {
     console.error(err);
