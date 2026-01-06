@@ -30,6 +30,7 @@ const permifyclient = permify.grpc.newClient({
 /**
  * Writes relationship tuples to Permify
  */
+// tag::loadRelationships
 async function writeRelationshipTuples() {
   try {
     console.log('Writing relationship tuples...');
@@ -87,10 +88,12 @@ async function writeRelationshipTuples() {
     throw error;
   }
 }
+// end::loadRelationships
 
 /**
  * Writes attributes to Permify
  */
+// tag::loadAttributes
 async function writeAttributes() {
   try {
     console.log('\nWriting attributes...');
@@ -140,6 +143,7 @@ async function writeAttributes() {
     throw error;
   }
 }
+// end::loadAttributes
 
 /**
  * Main function to orchestrate all data writes
